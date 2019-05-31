@@ -36,5 +36,6 @@ npm.n = n;
 npm.t = t;
 npm.y = y;
 npm.h = h;
+npm.v = mod.v;
 npm.tau = fir.tau;
 npm.h_raw = h_raw;

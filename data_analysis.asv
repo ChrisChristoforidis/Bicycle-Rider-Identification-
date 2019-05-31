@@ -276,14 +276,14 @@ dat.y(:,1)=dat.roll;
 %% Genetic Algorithm
 in.pullforce=[dat.t',dat.w];
 in.leantorque=[dat.t',zeros(dat.N,1)];
- lb=[-250;-250;-250;-250];
- ub=[250;250;250;250];
+ lb=[-150;-150;-150;-150];
+ ub=[150;150;150;150];
 
 options = optimoptions('ga', "PopulationSize", 80, ...
   'EliteCount', 4, 'CrossoverFraction', 0.85, ...
   'InitialPopulationRange', [-50; 50]);
 
-[x_est, fval, ~, ~] = ga(@(X)statefbError(X, np, bike, dat), 4,[], [], [], [], lb, ub, [],options);
+[x_est, fval, ~, ~] = fmincon(@(X)statefbError(X, np, bike, dat), X0,[], [], [], [], lb, ub, [],options);
 %X0=[-47.634443333666490,5.591059100165730,1.336398615765447,-20.907426280657038];
 %% Results
 Q = diag(x_est(1:end-1));

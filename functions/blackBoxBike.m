@@ -1,12 +1,15 @@
-function sys = delftbike(v,whipple)
+function sys = delftbike(v)
 
 % Coefficient matrices;
 
-M0 = whipple.M0;
-C1 = whipple.C1;
-K0 = whipple.K0;
-Hfw = whipple.Hfw;
-K2 = whipple.K2;
+load('JBike6MCK.mat', 'C1', 'M0', 'K2', 'K0')
+
+a = -fliplr(eye(2)) + eye(2);
+M0 = a .* M0;
+C1 = C1 .* a;
+K0 = K0 .* a;
+K2 = K2 .* a;
+Hfw = [0.9; 0.014408]; % dfx/dTq
 
 
 O = zeros(2);

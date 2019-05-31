@@ -27,10 +27,6 @@ paraMOD.y = [Hy1w; Hy2w];
 
 paraMOD.y.InputName = {'Lateral Force'};
 paraMOD.y.OutputName = {'Roll Angle'; 'Steer Angle'};
-
-me = []; %#ok<NASGU>
-
-try paraMOD.y = minreal(paraMOD.y, 1e-3/2);
-catch me;
-end %#ok<NASGU>
+paraMOD.y = minreal(paraMOD.y, 1e-3/2);
+   
 paraMOD.z = -Hy1w;
