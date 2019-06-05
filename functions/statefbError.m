@@ -42,5 +42,5 @@ output=[out.roll_angle,out.steer_angle];
 
 e = (output - np.y);
 en = ((sum(e.^2)) * 1 / np.N);
-en=en(2);
+en=en(1);
 end
