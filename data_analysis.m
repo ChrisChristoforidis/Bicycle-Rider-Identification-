@@ -271,25 +271,26 @@ dat.y(:,1)=dat.roll;
  ub=[inf;inf;inf;inf;inf;inf;inf];
  options = optimset('TolFun', 1e-8);
 
-[x_est, fval, ~, ~] = fmincon(@(X)lqrError2(X,np,bike, dat), [diag(Q);R],[], [], [], [], lb, ub, [],options);
+[x_est, fval, ~, ~] = fmincon(@(X)statefbError(X,np,bike, dat), X0,[], [], [], [], lb, ub, [],options);
 
 %% Genetic Algorithm
 in.pullforce=[dat.t',dat.w];
 in.leantorque=[dat.t',zeros(dat.N,1)];
- lb=[-250;-250;-250;-250;-250;-250];
- ub=[250;250;250;250;250;250];
+ lb=[-250;-250;-250;-250];
+ ub=[250;250;250;250];
 
 options = optimoptions('ga', "PopulationSize", 80, ...
   'EliteCount', 4, 'CrossoverFraction', 0.85, ...
   'InitialPopulationRange', [-50; 50],...
   'InitialPopulationMatrix',[-27.8688060508863 3.83424352600571 3.24115313899635 -1.4528375845157]);
 
-[x_est, fval, ~, ~] = fmincon(@(X)statefbError2(X, np, bike, dat), X0,[], [], [], [], lb, ub, [],options);
+[x_est, fval, ~, ~] = ga(@(X)statefbError2(X, np, bike, dat), 4,[], [], [], [], lb, ub, []);
 %X0=[-47.634443333666490,5.591059100165730,1.336398615765447,-20.907426280657038];
 %X0=[-27.8688060508863 3.83424352600571 3.24115313899635 -1.4528375845157]
 %minimize steer tf
-%[-19.067896194094440,3.507207707751709,-3.422831023102377,0.694606464802936]
+%K=[-19.067896194094440,3.507207707751709,-3.422831023102377,0.694606464802936]
 % minimize roll tf
+
 %% Results
 Q = diag(x_est(1:end-1));
 R = x_est(end);
