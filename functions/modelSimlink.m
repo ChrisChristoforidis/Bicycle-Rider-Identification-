@@ -12,24 +12,36 @@ function out = modelSimlink(K,bike_m,dat)
 addpath('simulink');
 omegac = 2 * pi * 2.17; 
 
-open_system('state_fb_model_v2');
+open_system('state_fb_model_v3');
 in.pullforce = [dat.t',dat.w];
 in.leantorque = [dat.t',zeros(dat.N,1)];
 
 %set the parameters of the whipple bicycle model in the simulink model
-set_param('state_fb_model_v2/State-Space','A',mat2str(bike_m.A));
-set_param('state_fb_model_v2/State-Space','B',mat2str(bike_m.B));
-set_param('state_fb_model_v2/State-Space','C',mat2str(bike_m.C));
-set_param('state_fb_model_v2/State-Space','D',mat2str(bike_m.D));
+set_param('state_fb_model_v3/State-Space','A',mat2str(bike_m.A));
+set_param('state_fb_model_v3/State-Space','B',mat2str(bike_m.B));
+set_param('state_fb_model_v3/State-Space','C',mat2str(bike_m.C));
+set_param('state_fb_model_v3/State-Space','D',mat2str(bike_m.D));
+
+%set the NMS model
+set_param('state_fb_model_v3/Muscle','Numerator',mat2str(omegac^2));
+set_param('state_fb_model_v3/Muscle','Denominator',mat2str([1 2*sqrt(1/2)*omegac omegac^2]));
+%set the forward model.
+fcnblockhandle = getSimulinkBlockHandle('state_fb_model_v3/State-Space1',true);
+set_param(fcnblockhandle,'A',mat2str(bike_m.A));
+set_param(fcnblockhandle,'B',mat2str(bike_m.B(:,2)));
+set_param(fcnblockhandle,'C',mat2str(bike_m.C));
+set_param(fcnblockhandle,'D',mat2str(bike_m.D(:,1)));
+
+%set the feedforward NMS model
+set_param('state_fb_model_v3/ModelMuscle','Numerator',mat2str(omegac^2));
+set_param('state_fb_model_v3/ModelMuscle','Denominator',mat2str([1 2*sqrt(1/2)*omegac omegac^2]));
 %set the parameters of the rider model in the simulink model
-set_param('state_fb_model_v2/Gain','Gain',mat2str(K));
-set_param('state_fb_model_v2/Muscle','Numerator',mat2str(omegac^2));
-set_param('state_fb_model_v2/Muscle','Denominator',mat2str([1 2*sqrt(1/2)*omegac omegac^2]));
+set_param('state_fb_model_v3/Gain','Gain',mat2str(K));
 
 
 paramNameValStruct.StopTime= num2str(dat.t(end));
 try 
-  out= sim('state_fb_model_v2',paramNameValStruct);
+  out= sim('state_fb_model_v3',paramNameValStruct);
 catch 
   out.roll_angle=ones(length(dat.N),1)*inf;
   out.steer_angle=ones(length(dat.N),1)*inf;

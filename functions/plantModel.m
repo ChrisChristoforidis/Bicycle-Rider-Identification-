@@ -1,5 +1,6 @@
 function mod = plantModel(bike,omegac)
 
+
 Gnm.A=[0 1; -omegac^2 -2*sqrt(1/2)*omegac];
 Gnm.B=[0;omegac^2];
 Gnm.C=[1 0];

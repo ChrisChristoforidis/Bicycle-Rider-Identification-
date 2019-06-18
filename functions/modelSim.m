@@ -10,20 +10,24 @@ function out = modelSim(K,bike,dat)
 
 
 % Get combined plant model (bicycle+neuromuscular dyanmics)
+
+
+
+% Process
 omegac= 2 * pi * 2.17;
 Gp=plantModel(bike,omegac);
-Gp=ss(Gp.A,Gp.B,eye(6),zeros(6,3));
-Gp.Ts=1/dat.Fs;
-
-Gp=delayStateSpace(Gp,0.015,K);
+Gp.Ts=0.001;
+if max(abs(dat.w)) < 20
+  Gp.B(:,3)=[bike.B(:,2) ;0 ;0];
+end
 %Simulation of closed loop system
-output = lsim(Gp.A-Gp.B(:,2)*Gp.K,Gp.B(:,3),Gp.C,Gp.D(:,1),dat.w,dat.t);
+output = lsim(Gp.A-Gp.B(:,2)*[K 0 0],Gp.B(:,3),eye(6),zeros(6,1),dat.w,dat.t);
 % Output assignment
 out.steer_torque = output(:,5);
 out.steer_angle = output(:,4);
 out.roll_angle = output(:,3);
 out.roll_rate = output(:,1);
 out.steer_rate = output(:,2);
-
+out.Input= -K*output(:,1:4).';
 
 end

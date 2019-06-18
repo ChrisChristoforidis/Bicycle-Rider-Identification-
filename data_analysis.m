@@ -29,8 +29,10 @@ Wn = pi * fc / (2 * raw.Fs);
 raw.w(idd) = filtfilt(c, d, raw.w(idd));
 ii = 0;
 raw.w = raw.w - median(raw.w);
-TF = islocalmax(raw.w, 'MinProminence', 50);
+TF = islocalmax(raw.w, 'MinProminence', 100);
 idd = find(TF);
+
+
 raw.ww = zeros(raw.N, 1);
 for jj = 1:length(idd)
   for ii = -300:400
@@ -83,12 +85,7 @@ raw.v = mean(v);
 %% Roll Estimation
 
 dat = Roll_Observer(raw);
-roll = zeros(dat.N,1);
-for i=1:dat.N-1
-  roll(i+1)=roll(i)+1/dat.Fs*dat.Omega(i,1);
-end
-roll=highpass(roll,0.05,dat.Fs);
-dat.RollAngle=roll;
+
 
 time = dat.time;
 phi = dat.RollAngle;
@@ -100,7 +97,7 @@ phi_w = dat.phi_all(:, 2);
 
 
 y = dat.SteerAngle.';
-[Trider, v, dv, ddv, ~] = TorqueEstimation(y, dat.Tmotor.');
+[Trider, v, dv, ddv, ~] = TorqueEstimation(y, dat.Tmotor.',true);
 
 if max(ddv) > 40
   figure(2)
@@ -134,53 +131,53 @@ mod.v = dat.v;
 v = v.';
 
 %% PLOTS
-
-
-figure(3)
-plot(time, phi_m, 'k');
-hold on
-plot(time, phi_d, 'b');
-plot(time, phi_w, 'g:');
-plot(time, phi, 'r')
-xlabel('Time (s)');
-ylabel('Angle (rad)');
-legend('\phi_{m}', '\phi_{d}', '\phi_{w}', 'Observer');
-
-figure(4)
-plot(time(1:end), phi(1:end)*180/pi);
-hold on
-plot(time(1:end), zeros(length(time(1:end)), 1))
-ylabel('Roll Angle (deg)');
-yyaxis right
-plot(time(1:end), dat.w(1:end))
-ylabel('Lateral Force (N)');
-
-xlabel('Time (s)');
-
-figure(5)
-subplot(311)
-plot(mod.t, mod.y(:, 2));
-hold on
-plot(mod.t, v(1:b1), '--');
-ylabel('Steer Angle (rad)')
-legend('Orginal', 'Spline Interpolation');
-subplot(312)
-plot(mod.t, mod.Rates(:, 2))
-ylabel('Steer Rate (rad/s)')
-
-subplot(313)
-plot(mod.t, ddv(1:b1))
-ylabel('Steer Acceleration (rad/s^2)')
-
-xlabel('Time (s)');
-
-figure(6)
-plot(mod.t, mod.Tdelta);
-xlabel('Time(s)');
-ylabel('Torque(Nm)');
-yyaxis right
-plot(time(1:b1), dat.w(1:b1))
-ylabel('Lateral Force (N)');
+% 
+% 
+% figure(3)
+% plot(time, phi_m, 'k');
+% hold on
+% plot(time, phi_d, 'b');
+% plot(time, phi_w, 'g:');
+% plot(time, phi, 'r')
+% xlabel('Time (s)');
+% ylabel('Angle (rad)');
+% legend('\phi_{m}', '\phi_{d}', '\phi_{w}', 'Observer');
+% 
+% figure(4)
+% plot(time(1:end), phi(1:end)*180/pi);
+% hold on
+% plot(time(1:end), zeros(length(time(1:end)), 1))
+% ylabel('Roll Angle (deg)');
+% yyaxis right
+% plot(time(1:end), dat.w(1:end))
+% ylabel('Lateral Force (N)');
+% 
+% xlabel('Time (s)');
+% 
+% figure(5)
+% subplot(311)
+% plot(mod.t, mod.y(:, 2));
+% hold on
+% plot(mod.t, v(1:b1), '--');
+% ylabel('Steer Angle (rad)')
+% legend('Orginal', 'Spline Interpolation');
+% subplot(312)
+% plot(mod.t, mod.Rates(:, 2))
+% ylabel('Steer Rate (rad/s)')
+% 
+% subplot(313)
+% plot(mod.t, ddv(1:b1))
+% ylabel('Steer Acceleration (rad/s^2)')
+% 
+% xlabel('Time (s)');
+% 
+% figure(6)
+% plot(mod.t, mod.Tdelta);
+% xlabel('Time(s)');
+% ylabel('Torque(Nm)');
+% yyaxis right
+% plot(time(1:b1), dat.w(1:b1))
+% ylabel('Lateral Force (N)');
 
 
 raw = dat;
@@ -284,7 +281,7 @@ options = optimoptions('ga', "PopulationSize", 80, ...
   'InitialPopulationRange', [-50; 50],...
   'InitialPopulationMatrix',[-27.8688060508863 3.83424352600571 3.24115313899635 -1.4528375845157]);
 
-[x_est, fval, ~, ~] = ga(@(X)statefbError2(X, np, bike, dat), 4,[], [], [], [], lb, ub, []);
+[x_est, fval, ~, ~] = ga(@(X)statefbError(X, np, bike, dat), 4,[], [], [], [], lb, ub, [],options);
 %X0=[-47.634443333666490,5.591059100165730,1.336398615765447,-20.907426280657038];
 %X0=[-27.8688060508863 3.83424352600571 3.24115313899635 -1.4528375845157]
 %minimize steer tf

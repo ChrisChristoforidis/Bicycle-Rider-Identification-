@@ -1,8 +1,8 @@
 function fir = FIR(dat)
 
 % Settings
-m1 = 3 * (-2^9 + 2^8); % tau_min samples
-m2 = 5 * (2^9 + 2^8); % tau_max samples
+m1 = 2 * (-2^9 + 2^8); % tau_min samples
+m2 = 3 * (2^9 + 2^8); % tau_max samples
 wn = 0.05 / 5; % Nyquist normalized datter factor
 
 % FIR finite impulse response function h(tau)

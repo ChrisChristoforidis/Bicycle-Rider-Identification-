@@ -1,4 +1,4 @@
-function [Md]=delayStateSpace(M,delay,K)
+function [Md]=delayStateSpace(M,delay)
 % Delay arbitrary state space system by discrete delay line 
 % Changes the observation matrix, such that only delayed states are
 % observable. Changes A, B, C and D accordingly.
@@ -30,7 +30,7 @@ Md.A = [A,                  zeros(N,N*(d-1)),   zeros(N);...
         zeros(N*(d-1),N),   eye(N*(d-1)),       zeros(N*(d-1),N)];
 
 Md.B = [B; zeros(N*d,U)];
-Md.K = [K 0 0 zeros(1,N*d)];
+%Md.K = [K 0 0 zeros(1,N*d)];
 Md.C = [zeros(O,N*d), C];
 
 Md.D = D;

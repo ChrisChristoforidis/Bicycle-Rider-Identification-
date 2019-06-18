@@ -15,4 +15,5 @@ end
 
 U = [U1, U2];
 
-g = (U' * U) \ U' * y;
+%g = (U' * U) \ U' * y;
+g=inv(U' * U)*U' * y;

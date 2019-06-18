@@ -35,7 +35,7 @@ H = [1, 0];
 G = [dt; 0];
 % Process And Measurement Noise
 Qp = [5E-07, 0; 0, 1E-08];
-Qs = 0.3;
+Qs = 0.5;
 
 %Initialization of some cells and matrices
 
